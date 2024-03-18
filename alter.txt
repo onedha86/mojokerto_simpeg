@@ -1,0 +1,97 @@
+create or replace function getformatnipbaru(vnip character varying)
+returns character varying as
+$body$
+declare
+vreturn character varying;
+begin
+	select
+	substr(vnip, 0, 8) || ' ' || substr(vnip, 9, 6) || ' ' || substr(vnip, 15, 1) || ' ' || substr(vnip, 16, 3) vnip
+	into vreturn;
+	
+	return vreturn;
+end;
+$body$
+language plpgsql volatile
+cost 100;
+alter function getformatnipbaru(character varying)
+owner to postgres;
+
+alter table pegawai add column format_nip_baru character varying;
+alter table pegawai add column vnama_lengkap character varying;
+
+update pegawai as u
+set
+pegawai_id= aggr.pegawai_id
+from
+(
+  select a.pegawai_id
+  from pegawai a
+  where 1=1
+  --and coalesce(nullif(format_nip_baru, ''), null) is not null
+) as aggr
+where u.pegawai_id = aggr.pegawai_id;
+
+create or replace function ppegawai_detil_info()
+  returns trigger as
+$body$
+declare
+	var_id integer;
+	varcheck integer;
+	format_nip_baru character varying;
+	gelar_depan character varying;
+	gelar_belakang character varying;
+	nama character varying;
+	vnama_lengkap character varying;
+
+	/*
+	info_satuan_kerja_nama character varying;
+	info_satuan_kerja_induk character varying;
+	info_satuan_kerja_detil character varying;
+	*/
+begin
+
+	/*if new.satuan_kerja_id is not null then
+		select ambil_satker_nama_dynamic(new.satuan_kerja_id) into info_satuan_kerja_nama;
+		select ambil_satker_induk(new.satuan_kerja_id) into info_satuan_kerja_induk;
+		select ambil_satker_nama_detil(new.satuan_kerja_id) into info_satuan_kerja_detil;
+
+		new.info_satuan_kerja_nama:= info_satuan_kerja_nama;
+		new.info_satuan_kerja_induk:= info_satuan_kerja_induk;
+		new.info_satuan_kerja_detil:= info_satuan_kerja_detil;
+	end if;*/
+
+	if coalesce(nullif(new.nip_baru, ''), null) is not null then
+		select getformatnipbaru(new.nip_baru) into format_nip_baru;
+		new.format_nip_baru:= format_nip_baru;
+	end if;
+
+	gelar_depan:= new.gelar_depan;
+	gelar_belakang:= new.gelar_belakang;
+	nama:= new.nama;
+
+	if coalesce(nullif(gelar_depan, ''), null) is null then vnama_lengkap:= '';
+	else vnama_lengkap:= gelar_depan || '. ';
+	end if;
+
+	vnama_lengkap:= vnama_lengkap || nama;
+
+	if coalesce(nullif(gelar_belakang, ''), null) is not null then
+		vnama_lengkap:= vnama_lengkap || ', ' || gelar_belakang;
+	end if;
+	--raise notice 'sql %',vnama_lengkap;
+
+	new.vnama_lengkap:= vnama_lengkap;
+
+  return new;
+   
+end;
+$body$
+language plpgsql volatile cost 100;
+alter function ppegawai_detil_info() owner to postgres;
+  
+drop trigger if exists tpegawai_detil_info on pegawai;
+create trigger tpegawai_detil_info
+before insert or update
+on pegawai
+for each row
+execute procedure ppegawai_detil_info();

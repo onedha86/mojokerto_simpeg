@@ -92,7 +92,7 @@ class pegawai_json extends CI_Controller {
 		$adminuserid= $this->adminuserid;
 
 		
-		if($userLogin->userSatkerId == "")//kondisi login sebagai admin
+		/*if($userLogin->userSatkerId == "")//kondisi login sebagai admin
 		{
 			$statement='';
 		}
@@ -157,13 +157,16 @@ class pegawai_json extends CI_Controller {
 			$sOrder = "ORDER BY C.ESELON_ID asc,A.TUGAS_TAMBAHAN_NEW asc,B.PANGKAT_ID  DESC,B.TMT_PANGKAT asc";
 		// }
 
+		*/
 
-		// $sOrder = "";
-		$set->selectByParamsMonitoring2(array(), $dsplyRange, $dsplyStart, $statement." AND (UPPER(B.GOL_RUANG) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(TEMPAT_LAHIR) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(NAMA) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(A.NAMA) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(A.NIP_LAMA) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(A.NIP_BARU) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(AMBIL_FORMAT_NIP_BARU(NIP_BARU)) LIKE '%".strtoupper($_GET['sSearch'])."%' ) ", $sOrder);
+		$searhjson= " AND (UPPER(B.GOL_RUANG) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(TEMPAT_LAHIR) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(NAMA) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(A.NAMA) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(A.NIP_LAMA) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(A.NIP_BARU) LIKE '%".strtoupper($_GET['sSearch'])."%' OR UPPER(AMBIL_FORMAT_NIP_BARU(NIP_BARU)) LIKE '%".strtoupper($_GET['sSearch'])."%' ) ";
+
+		$set->selectByParamsMonitoring2(array(), $dsplyRange, $dsplyStart, $statement, $sOrder);
 		
 		if(!empty($cekquery)){
 			echo $set->query;exit;
 		}
+		
 		while ($set->nextRow()) 
 		{
 			$row= [];
