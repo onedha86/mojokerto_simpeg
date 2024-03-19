@@ -91,20 +91,22 @@ class pegawai_json extends CI_Controller {
 		$userpegawaimode= $this->userpegawaimode;
 		$adminuserid= $this->adminuserid;
 
+		// ambil seseuai login
+		$sess_satkerid= $this->sess_satkerid;
 		
-		/*if($userLogin->userSatkerId == "")//kondisi login sebagai admin
+		if(empty($sess_satkerid))//kondisi login sebagai admin
 		{
-			$statement='';
+			$statement= '';
 		}
 		else // kondisi login sebagai SKPD
 		{
-			if($reqId == "")
-				$statement .= " AND A.SATKER_ID LIKE '".$userLogin->userSatkerId."%' ";
+			if(empty($reqId))
+				$statement.= " AND A.SATKER_ID LIKE '".$sess_satkerid."%' ";
 			else
-				$statement .= " AND A.SATKER_ID LIKE '".$reqId."%' ";
+				$statement.= " AND A.SATKER_ID LIKE '".$reqId."%' ";
 		}
 
-		$reqSearch= "and TANGGAL_LAHIR is not null";
+		/*$reqSearch= "and TANGGAL_LAHIR is not null";
 
 		if($reqSearch == "")
 			$reqSearch.= " AND (STATUS_PEGAWAI = 1 OR STATUS_PEGAWAI = 2)";

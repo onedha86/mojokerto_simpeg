@@ -38,6 +38,39 @@ class globalsatuankerja
 		return $arrreturn;
 	}
 
+	function getsatuankerjadata($arrparam)
+	{
+		$CI = &get_instance();
+		$CI->load->model("base/SatuanKerja");
+
+		$statement="";
+		$statement=" AND A.SATKER_ID LIKE '01%'";
+		$set= new SatuanKerja();
+		$set->selectdata(array(), -1,-1,$statement);
+		// echo $set->query;exit;
+
+		$vreturn= [];
+
+		$vnama= "Pemerintah Kabupaten Mojokerto";
+		$arrdata["id"]= "-1";
+		$arrdata["text"]= $vnama;
+		$arrdata["namadetil"]= $vnama;
+		array_push($vreturn, $arrdata);
+
+		while($set->nextRow())
+		{
+			$arrdata= [];
+			$arrdata["id"]= $set->getField("SATKER_ID");
+			$arrdata["parentid"]= $set->getField("SATKER_ID_PARENT");
+			$arrdata["text"]= $set->getField("NAMA");
+			$arrdata["namadetil"]= $set->getField("VSATKER_NAMA_DETIL");
+			array_push($vreturn, $arrdata);
+		}
+		unset($set);
+		// print_r($vreturn);exit;
+		return $vreturn;
+	}
+
 	function getsatuankerjatree($arrparam)
 	{
 		$CI = &get_instance();
@@ -64,6 +97,12 @@ class globalsatuankerja
 		// print_r($arrsatker);exit;
 
 		$vreturn= [];
+
+		$arrdata= [];
+		$arrdata["id"]= "-1";
+		$arrdata["text"]= "Pemerintah Kabupaten Mojokerto";
+		array_push($vreturn, $arrdata);
+
 		$infocarikey= "0";
 		// echo $infocarikey;exit;
 		$arrcheck= in_array_column($infocarikey, "parentid", $arrsatker);

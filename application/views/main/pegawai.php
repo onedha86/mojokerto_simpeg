@@ -1,6 +1,4 @@
 <?php
-$this->load->library('globalsatuankerja');
-
 $userpegawaimode= $this->userpegawaimode;
 $adminuserid= $this->adminuserid;
 
@@ -27,8 +25,8 @@ $arrtabledata= array(
     , array("label"=>"fieldid", "field"=> "PEGAWAI_ID", "display"=>"1", "width"=>"")
 );
 
-$vgl= new globalsatuankerja();
-$arrdatajabatan= $vgl->getsatuankerjatree([]);
+$arrsatkertree= $this->sesstree;
+$arrsatkerdata= $this->sessdatatree;
 ?>
 <!-- SELECT2 -->
 <link href="lib/select2/select2.min.css" rel="stylesheet">
@@ -65,7 +63,7 @@ $arrdatajabatan= $vgl->getsatuankerjatree([]);
                     </span>
                     <h3 class="card-label">
                         Pegawai<br/>
-                        <label>Pemerintah Kabupaten Mojokerto</label>
+                        <label id="infodetilsatkernama">Pemerintah Kabupaten Mojokerto</label>
                     </h3>
                 </div>
 
@@ -107,7 +105,7 @@ $arrdatajabatan= $vgl->getsatuankerjatree([]);
                     <div id="divcarisatuankerja" style="display: none; position: absolute; z-index: 1; top: 60px; right: 30px; background-color: #FFFFFF; border: 1px solid #ebedf3; padding: 15px; border-radius: 0.42rem; ">
                         <label><i>Ketikkan nama satker...</i> </label>
                         <div class="clearfix"></div>
-                        <select class="form-control" id="reqJabatanId" style="width:56em">
+                        <select class="form-control" id="reqSatkerId" style="width:56em">
                             <option value=""></option>
                         </select>
                     </div> 
@@ -244,7 +242,7 @@ jQuery(document).ready(function() {
     });
 
     $("#triggercari").on("click", function () {
-
+console.log("Asd");
         if(carijenis == "1")
         {
             pencarian= $('#'+infotableid+'_filter input').val();
@@ -257,12 +255,17 @@ jQuery(document).ready(function() {
     });
 
     $("#filter,#reqStatusHukuman").change(function() { 
-        setCariInfo()
+        calltriggercari();
     });
 
-    arrdatajabatan= JSON.parse('<?=JSON_encode($arrdatajabatan)?>');
+    arrsatkertree= JSON.parse('<?=JSON_encode($arrsatkertree)?>');
+    arrsatkerdata= JSON.parse('<?=JSON_encode($arrsatkerdata)?>');
 
-    $("#reqJabatanId").select2ToTree({treeData: {dataArr: arrdatajabatan, dftVal:"<?=$reqJabatanId?>"}, maximumSelectionLength: 3, placeholder: 'Pilih salah satu data'});
+    $("#reqSatkerId").select2ToTree({treeData: {dataArr: arrsatkertree, dftVal:"<?=$reqSatkerId?>"}, maximumSelectionLength: 3, placeholder: 'Pilih salah satu data'});
+
+    $("#reqSatkerId").change(function() {
+        setinfosatkerdetil();
+    });
 
     $(".area-filter").hide();
     $("button.filter").click(function(){
@@ -270,6 +273,28 @@ jQuery(document).ready(function() {
     });
 
 });
+
+// untuk otomatisasi jabatan
+function setinfosatkerdetil()
+{
+    reqSatkerId= $("#reqSatkerId").val();
+
+    if(Array.isArray(arrsatkerdata) && arrsatkerdata.length)
+    {
+        vsatkerdata= arrsatkerdata.filter(item => item.id === reqSatkerId);
+        // console.log(reqSatkerId);
+        // console.log(vsatkerdata);return false;
+        // console.log(vsatkerdata[0]);
+        // console.log(vsatkerdata);
+
+        infodetilsatkernama= "";
+        if(Array.isArray(vsatkerdata) && vsatkerdata.length)
+        {
+            infodetilsatkernama= vsatkerdata[0]["namadetil"];
+        }
+        $("#infodetilsatkernama").text(infodetilsatkernama);
+    }
+}
 
 function calltriggercari()
 {
